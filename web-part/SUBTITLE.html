@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles/subtitle.css">
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyBQa9n2PN8qQ1wETdWStaq6kX8z2j_FSMU",
+            authDomain: "robotid-df8e6.firebaseapp.com",
+            databaseURL: "https://robotid-df8e6-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "robotid-df8e6",
+            storageBucket: "robotid-df8e6.appspot.com",
+            messagingSenderId: "551508680621",
+            appId: "1:551508680621:web:2e1999bca71ed2e1e80b24"
+        };
+        var ceiling = 10
+        var floor
+        var impText
+        var emIndex
+        var emotion;
+        var kataloog = 'test'
+        var string
+        var emNames = ['anger', 'bitterness', 'boredom', 'compassion', 'contempt', 'decidedness', 'disappointment', 'dreamy', 'excitement', 'fear', 'happiness', 'hopelessness', 'irritation', 'jealousy', 'love', 'nostalgia', 'sadness', 'self_pity', 'suprise']
+        var emotions = [10, 10, 10, 16, 18, 10, 10, 10, 14, 10, 14, 10, 12, 10, 10, 10, 10, 10, 12]
+        var emotionsBegin = [11, 11, 11, 17, 19, 11, 11, 11, 15, 11, 15, 11, 13, 11, 11, 11, 11, 11, 13]
+        var emotionsEnd = [30, 26, 29, 58, 63, 30, 30, 30, 65, 30, 58, 30, 37, 30, 30, 30, 30, 30, 39]
+        //'anger', 'bitterness', 'boredom', 'compassion', 'contempt', 'decidedness', 'dissapointment', 'dreamy', 'excitement', 'fear', 'happiness', 'hopelesness', 'irritaion', 'jealousy', 'love', 'nostalgia', 'sadness', 'self_pity', 'suprise'
+        firebase.initializeApp(firebaseConfig);
+        window.onload=function(){
+        firebase.database().ref("test/seadmed/KUVA/seadmele").on("value", kuva);
+        }
+
+        function kuva(viit){
+            let andmed = viit.val();
+            if (andmed.kood=='text') {
+                console.log('text',andmed.teatesisu);
+                string = andmed.teatesisu
+                showText()
+                firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+                {'kood':'test','teatesisu':'test'})
+            
+            }
+
+            if(andmed.kood=="pic"){
+            console.log(andmed.teatesisu);
+            emotion = andmed.teatesisu;
+            show();
+            firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+                {'kood':'test','teatesisu':'test'})
+            }
+
+            if (andmed.kood == 'impText') {
+                imptext = andmed.teatesisu
+            }
+            if (andmed.kood == 'showImpText') {
+                string = imptext
+                console.log(imptext);
+                showText()
+                firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+                {'kood':'test','teatesisu':'test'})
+            }
+            if (andmed.kood == 'showImpProg') {
+                showImpprog()
+            }
+
+        }
+
+        function showText() {
+            document.getElementById('subtitle').innerHTML = string
+            show()
+        }
+
+        function show(){
+            if(string.indexOf("[") >= 0){      
+                emotion = string.substring(string.indexOf("[") +1, string.indexOf("]"));
+                emotion = emotion.trim()
+                console.log('trimmed',emotion);
+                emotion = emotion.toLowerCase();
+                getEmotionNumb(emotion)
+                
+                var number = getRndInteger(floor, ceiling);
+                console.log(number,'randnr');
+                document.getElementById("emotion").src = "Emotions2/emotion_" + emotion + "/emotion_" + emotion +"_" + number + ".jpg";
+
+            }
+        }
+
+        function getRndInteger(min, max){
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function showRand() {
+            console.log(emotions.length);
+            console.log(emNames.length);
+            console.log(Math.floor(Math.random() * (10 - 1 + 1)) + 1);
+        }
+
+        function getEmotionNumb(emotion) {
+            emIndex = emNames.indexOf(emotion)
+            floor = emotionsBegin[emIndex]
+            ceiling = emotionsEnd[emIndex]
+            console.log(floor,'floor');
+            console.log(ceiling,'ceiling');
+        }
+
+
+    </script>
+</head>
+<body>
+    <div class="image"> 
+        <img id="emotion" src="./Emotions/blackimg.jpg" >
+    </div>
+    <div class='liveLight' id='liveLight'>
+        GENERATING
+    </div>
+    <div class='whitetext' id='subtitle'>
+        test
+    </div>
+</body>
+<script>
+    var progBar = document.getElementById('liveLight')
+
+    function showImpprog() {
+        console.log('Blinking');
+        document.getElementById('subtitle').innerHTML = ''
+        //document.getElementById('liveLight').innerHTML = 'GENERATING'
+        progBar.classList.add('liveLightGreen')
+        firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+            {'kood':'test','teatesisu':'test'})
+        progBar.addEventListener('animationend', function (e)
+        {
+            progBar.classList.remove('liveLightGreen')
+            //document.getElementById('liveLight').innerHTML = ''
+        }
+        )
+
+    }
+    
+</script>
+</html>

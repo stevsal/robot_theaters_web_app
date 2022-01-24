@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var firebaseConfig = {
+    apiKey: "AIzaSyBQa9n2PN8qQ1wETdWStaq6kX8z2j_FSMU",
+    authDomain: "robotid-df8e6.firebaseapp.com",
+    databaseURL: "https://robotid-df8e6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "robotid-df8e6",
+    storageBucket: "robotid-df8e6.appspot.com",
+    messagingSenderId: "551508680621",
+    appId: "1:551508680621:web:2e1999bca71ed2e1e80b24"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+    window.onload=function(){
+    firebase.database().ref("test/seadmed/IMPRO/seadmele").on("value", kuva);
+  }
+  var kataloog='test';
+  var speaker = ''
+  var speakers = ['Vicki', 'Geraint', 'Penelope', 'Hans', 'Giorgio']
+  var who = ''
+  var socket = io()
+
+  function kuva(obje) {
+      let info = obje.val()
+      speaker = getSpeaker(info.speaker)
+      console.log(speaker);
+      //who = info.speaker
+      //console.log(who);
+      console.log(info.tekst,'Tekst');
+      document.getElementById('helper').innerHTML = info.teatesisu
+      document.getElementById('show').innerHTML = info.tekst
+      var chars = document.getElementById('charsToImpro').value
+      var key = document.getElementById('key').value
+      var i = document.getElementById('helper').innerHTML
+      console.log('i on',i);
+      if (i == 1) {
+        socket.emit('message',info.tekst, speaker, chars, key)
+      } else {
+        
+      }
+  }
+
+  socket.on('response url', function (url, text) {
+    console.log('sending url',url);
+    sendUrl(url)
+    sendImpText(text)
+  })
+
+  function sendUrl(url) {
+    console.log(who);
+    /*ref(kataloog+'/seadmed/'+who+'/seadmele')*/
+    firebase.database().ref(kataloog+'/seadmed/IMPROPLAYER/seadmele').set(
+      {'kood':'improfail', 'teatesisu':url}
+    )
+    document.getElementById('helper').innerHTML = 2
+    firebase.database().ref(kataloog+'/seadmed/IMPRO/seadmele').set(
+            {'teatesisu':2}
+          )
+  }
+
+  function sendImpText(text) {
+    console.log(text);
+    firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+      {'kood':'impText', 'teatesisu': text}
+    )
+  }
+
+  function sendImpro() {
+    var text1 = document.getElementById('textToImpro').value
+    var chars = document.getElementById('charsToImpro').value
+    var key = document.getElementById('key').value
+    socket.emit('message', text1, speakers[3],chars, key)
+  }
+
+  function getSpeaker(char) {
+        if (char == 'MERIPANNA') {
+          return speakers[0]
+        }
+        if (char == 'ALLEKIN') {
+          return speakers[1]
+        }
+        if (char == 'LOBE AN') {
+          return speakers[2]
+        }
+        if (char == 'THABOLIND VAKAN') {
+          return speakers[3]
+        }
+        if (char == 'FEDONI') {
+          return speakers[4]
+        }
+      }
+  </script>
+</head>
+
+<body>
+  <div id='title'>Hello</div>
+  <div id='helper'>2</div>
+  <div id='show'></div>
+  <button id='test'>test</button>
+  <input type="text" id="textToImpro">
+  <input type="text" id="charsToImpro" value="110">
+  <input type="text" id='key' value='0.6'>
+  <button id="sendImpro" onclick="sendImpro()">Send</button>
+</body>
+</html>

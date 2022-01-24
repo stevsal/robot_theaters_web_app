@@ -1,0 +1,107 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Oma teate vaatamine</title>
+	<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/addons/p5.dom.js"></script>
+<link rel="stylesheet" href="./styles/impro.css">
+<script src="http://minitorn.tlu.ee/~jaagup/kool/java/kursused/20/veebiraamistikud_tallinn/mikrofon/p5.speech.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyBQa9n2PN8qQ1wETdWStaq6kX8z2j_FSMU",
+    authDomain: "robotid-df8e6.firebaseapp.com",
+    databaseURL: "https://robotid-df8e6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "robotid-df8e6",
+    storageBucket: "robotid-df8e6.appspot.com",
+    messagingSenderId: "551508680621",
+    appId: "1:551508680621:web:2e1999bca71ed2e1e80b24"
+  };
+  // Initialize Firebase
+  let kataloog = 'test'
+
+  firebase.initializeApp(firebaseConfig);
+  window.onload=function(){
+     firebase.database().ref("test/seadmed/ALLEKIN/seadmele").on("value", kuva);
+  }
+
+	  function kuva(viit){
+	     let andmed=viit.val();
+		 document.getElementById("kiht1").innerHTML="Kood: "+andmed.kood+
+		   "<br />sisu:"+andmed.teatesisu;
+	     if(andmed.kood=="teksthelina"){
+		    diktor.speak(andmed.teatesisu);		    
+		 }
+		 if(andmed.kood=="pildiurl"){
+		     document.getElementById("pilt1").src=andmed.teatesisu;
+			 firebase.database().ref("test/logi").push({"seade":"testsead", "kood":"piltkuvatud", "teatesisu":andmed.teatesisu});
+		 }
+     if (andmed.kood=="helifail") {
+       console.log(andmed.teatesisu);
+       console.log('starting to play');
+       playVoice(andmed.teatesisu)
+       firebase.database().ref("test/logi").push({"seade":"ALLEKIN", "kood":"helimängib", "teatesisu":andmed.teatesisu})
+     }
+     if (andmed.kood=='improfail') {
+       addImpro(andmed.teatesisu)
+       firebase.database().ref("test/logi").push({"seade":"ALLEKIN", "kood":"impromängib", "teatesisu":andmed.teatesisu})
+
+     }
+	  }
+	</script>
+	 <script>
+      let diktor=new p5.Speech();
+      function jutusta(){
+         diktor.speak("hello");
+      }
+     </script>
+  </head>
+  <body>
+       <input type="button" value="Aktiveeri heli" onclick="jutusta()" />
+      Viimane teade: <div id="kiht1"></div>
+	  	  <img id="pilt1" />
+        <audio controls id="h22l" class="audioCtr">
+          <source src="h22led/testseade/0.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+        </audio>
+        <div id='marker' class='notReady'>NOT READY !</div>
+  </body>
+  <script>
+    var checkPlay = 0
+    function playVoice(index) {
+      document.getElementById('h22l').setAttribute('src', 'h22led/TEREH22LED/ALLEKIN/'+index+'.mp3')
+      document.getElementById('h22l').load()
+      document.getElementById('h22l').play()
+      console.log('Trying to play');
+    }
+    function addImpro(url) {
+      document.getElementById('h22l').setAttribute('src',url)
+      document.getElementById('marker').setAttribute('class','ready')
+      document.getElementById('marker').innerHTML = 'READY !'
+      /*document.getElementById('h22l').load()
+      document.getElementById('h22l').play()*/
+    }
+
+    document.getElementById('h22l').addEventListener('play', function() {
+      console.log('NOTREADY');
+      document.getElementById('marker').setAttribute('class', 'notReady')
+      document.getElementById('marker').innerHTML = 'NOT READY !'
+    })
+
+    window.addEventListener('touchstart', function () {
+      if (checkPlay == 0) {
+        document.getElementById('h22l').play()
+        checkPlay = 1
+        firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+          {'kood':'showImpText','teatesisu':'improtext'})
+
+      } else {
+        document.getElementById('h22l').pause()
+        checkPlay = 0
+      }
+    })
+
+  </script>
+</html>

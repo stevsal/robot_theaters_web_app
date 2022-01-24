@@ -1,0 +1,181 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Pilt/tekst</title>
+	<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/addons/p5.dom.js"></script>
+<link rel="stylesheet" href="./styles/textbtn.css">
+<script>
+ var firebaseConfig = {
+    apiKey: "AIzaSyBQa9n2PN8qQ1wETdWStaq6kX8z2j_FSMU",
+    authDomain: "robotid-df8e6.firebaseapp.com",
+    databaseURL: "https://robotid-df8e6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "robotid-df8e6",
+    storageBucket: "robotid-df8e6.appspot.com",
+    messagingSenderId: "551508680621",
+    appId: "1:551508680621:web:2e1999bca71ed2e1e80b24"
+  };
+
+  var kataloog='test';
+  var who = ''
+  var kokku = 9999
+  var paus = 0
+  var mangida = 0 
+  //failid masiiv 0=testseade 1=meripanna 2=allekin 3=lobe-an 4=thabolind-vakan 5=fedoni
+  var failid = [0,1,1,1,1,1]
+  var fail = ''
+  var text1 = ''
+  var text2 = []
+  var line = ''
+  var chars = ['testseade','MERIPANNA', 'ALLEKIN', 'LOBE AN', 'THABOLIND VAKAN', 'FEDONI', 'IMPRO', 'KUVA']
+  var speakers = ['Joanna', 'Geraint', 'Brian', 'Joey', 'Justin']
+  var prevSpeaker = ''
+  var key = 'a6ffc504c68be70294a4d68b5590cbca'
+  var emotionsArray = ['ANGER','BITTERNESS', 'BOREDOM', 'COMPASSION', 'CONTEMPT', 'DECIDEDNESS', 'DISAPPOINTMENT', 'DREAMY', 'EXCITEMENT', 'FEAR', 'HAPPINESS', 'HOPELESSNESS', 'IRRITATION', 'JEALOUSY', 'LOVE', 'NOSTALGIA', 'SADNESS', 'SELF_PITY', 'SURPRISE']
+  
+  
+  firebase.initializeApp(firebaseConfig);
+  window.onload=function(){
+     firebase.database().ref(kataloog+"/seadmed").once("value", kuva);
+  }
+
+	  function kuva(viit){
+	     let andmed=viit.val();
+		 let votmed=Object.keys(andmed);
+		 console.log(votmed);
+     let s = "<div><div/>"
+		 /*let s="<select id='seadmevalik' multiple='true'>"
+		 for(let i=0; i<votmed.length; i++){
+		   s+="<option>"+votmed[i]+"</option>\n";
+		 }
+		 s+="</select><br />";
+
+     //ValikuRiba
+     s+= "Kuidas edastada kأµne:<br />";
+		 s+="<select id='tyybivalik'>";
+		 s+="<option>tekst</option>";
+		 s+="<option>teksthelina</option>";
+		 s+="<option>pildiurl</option>";
+		 s+="<option>juhuslikpilt</option>";
+     s+="<option>helifail</option>";
+		 s+="</select><br />";
+
+		 s+="<input type='text' id='tekst1' /><br />";
+		// s+="<input type='button' value='saada' onclick='saada()'/>";
+     //s+="<input type='button' value='play' onclick='playAll()'/>";
+     s+="<input type='button' value='test' onclick='filter()'/>";*/
+     s+="<input type='button' class='mainBtn' value='pilt' onclick='showPic()'/>";
+     s+="<input type='button' class='mainBtn' value='back' onclick='goback()'/>";
+
+		 document.getElementById("kiht1").innerHTML=s;
+
+	  }
+var arrayNumber=0;
+
+
+
+    function showPic(){
+      
+      if (arrayNumber > text2.length){
+        throw 'Parameters not aquired';
+        arrayNumber--;
+      }
+      let string = text2[arrayNumber].toString()
+      console.log("string pikkus",string.length)
+      console.log(string,"string ");
+      //console.log(string.indexOf("["));
+      //console.log(string.indexOf("]"));
+      
+      if (string.length > 1) {
+        //console.log(string.indexOf('#'));
+        if (string.indexOf('#') < 0) {
+          firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+          {'kood':'text','teatesisu':string})
+        } else {
+          console.log('notneeded',string);
+          arrayNumber++
+          showPic()
+        }
+          arrayNumber++
+      } else {
+        console.log('whitespace jump');
+        arrayNumber++
+        showPic()
+      }
+      console.log(arrayNumber,'arrnumb');
+      
+    }
+
+    function goback(){
+      arrayNumber--
+      console.log(text2[arrayNumber], 'line');
+      console.log(arrayNumber,"new array nr");
+
+    }
+
+
+
+	  function saada(){
+	      let valik=document.getElementById("seadmevalik");
+		  console.log(valik.options);
+		  for (var option of document.getElementById('seadmevalik').options) {
+            if (option.selected) {
+          //       selected.push(option.value);
+		       firebase.database().ref(kataloog+'/seadmed/'+option.value+"/seadmele").set(
+			    {"kood":document.getElementById("tyybivalik").options[document.getElementById("tyybivalik").options.selectedIndex].value, "teatesisu":document.getElementById('tekst1').value});
+            }
+          }
+	  }
+
+
+
+	</script>
+  </head>
+  <body>
+    <p id="emotionLocation"></p>
+      Seadmed:<div id="kiht1"></div>
+      <input type='file' name='file' id='file'>
+      
+  </body>
+  <script>
+    document.getElementById('file').onchange = function(){
+
+        var file = this.files[0];
+
+        var reader = new FileReader();
+        reader.onload = function(progressEvent){
+
+            // By lines
+            var lines = this.result.split('\n');
+            for(var line = 0; line < lines.length; line++){
+                //console.log(lines[line]);
+                text2.push(lines[line])
+            }
+        };
+        reader.readAsText(file);
+        console.log('DONE');
+    };
+
+    function filter() {
+        text2.forEach(element => {
+            console.log(element);
+        });
+        mangida = 0
+        console.log(text2.length);
+        kokku = 0
+        kokku = text2.length
+    }
+
+    document.onkeyup = function (e) {
+      if (e.keycode == 32) {
+        console.log('spacebar');
+        showPic()
+
+      }
+    }
+
+  </script>
+</html>

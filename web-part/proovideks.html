@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proovideks</title>
+
+</head>
+<body>
+    <div>
+        <select name="scenes" id="sceneSelect">
+            <option value="scene1">Stseen 1</option>
+            <option value="scene2">Stseen 2</option>
+            <option value="scene3">Stseen 3</option>
+            <option value="scene4">Stseen 4</option>
+            <option value="scene5">Stseen 5</option>
+            <option value="scene6">Stseen 6</option>
+            <option value="scene7">Stseen 7</option>
+        </select>
+    </div>
+    <div>
+        <button id="next" onclick="playNext()">Play next</button>
+        <button id="back" onclick="playPrev()">Go back</button>
+    </div>
+    <audio controls id="player">
+        <source src='h22led/testseade/0.mp3' type="audio/mpeg">
+    </audio>
+</body>
+<script>
+    var s1 = [0,10, 20, 30 , 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360]
+    var s2 = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430]
+    var s3 = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 600, 610, 620, 630, 640, 650, 660, 670, 680, 690, 700, 710, 720]
+    var s4 = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550]
+    var s5 = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160]
+    var s6 = []
+    var s7 = []
+    var reader = 0
+    var scene
+    var audioplayer = document.getElementById('player')
+    document.getElementById('sceneSelect').onchange = function (){
+        selected = document.getElementById('sceneSelect')
+        reader = 0
+        scene = selected.value
+        console.log(selected.value)
+    }
+
+    function playNext() {
+        console.log(reader);
+        if (scene == 'scene1') {
+            audioplayer.setAttribute('src', 'h22led/scene1/'+s1[reader]+'.mp3')
+        }
+        if (scene == 'scene2') {
+            audioplayer.setAttribute('src', 'h22led/scene2/'+s2[reader]+'.mp3')
+        }
+        if (scene == 'scene3') {
+            audioplayer.setAttribute('src', 'h22led/scene3/'+s3[reader]+'.mp3')
+        }
+        if (scene == 'scene4') {
+            audioplayer.setAttribute('src', 'h22led/scene4/'+s4[reader]+'.mp3')
+        }
+        if (scene == 'scene5') {
+            audioplayer.setAttribute('src', 'h22led/scene5/'+s5[reader]+'.mp3')
+        }
+        if (scene == 'scene6') {
+            audioplayer.setAttribute('src', 'h22led/scene6/'+s6[reader]+'.mp3')
+        }
+        if (scene == 'scene7') {
+            audioplayer.setAttribute('src', 'h22led/scene7/'+s7[reader]+'.mp3')
+        }
+        reader++
+        audioplayer.load()
+        audioplayer.play()
+    }
+
+    function playPrev() {
+        console.log('Old spot '+ reader);
+        reader--
+        if (reader < 0) {
+            reader = 0
+        }
+        console.log('New spot '+ reader);
+    }
+</script>
+</html>

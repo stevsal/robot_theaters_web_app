@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Teadete saatmine</title>
+	<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+
+<script>
+ var firebaseConfig = {
+    apiKey: "AIzaSyBQa9n2PN8qQ1wETdWStaq6kX8z2j_FSMU",
+    authDomain: "robotid-df8e6.firebaseapp.com",
+    databaseURL: "https://robotid-df8e6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "robotid-df8e6",
+    storageBucket: "robotid-df8e6.appspot.com",
+    messagingSenderId: "551508680621",
+    appId: "1:551508680621:web:2e1999bca71ed2e1e80b24"
+  };
+
+  let kataloog='test';
+  
+  firebase.initializeApp(firebaseConfig);
+  window.onload=function(){
+     firebase.database().ref(kataloog+"/seadmed").once("value", kuva);
+  }
+
+	  function kuva(viit){
+	     let andmed=viit.val();
+		 let votmed=Object.keys(andmed);
+		 console.log(votmed);
+		 let s="<select id='seadmevalik' multiple='true'>"
+		 for(let i=0; i<votmed.length; i++){
+		   s+="<option>"+votmed[i]+"</option>\n";
+		 }
+		 s+="</select><br />";
+		 s+="<select id='tyybivalik'>";
+		 s+="<option>tekst</option>";
+		 s+="<option>teksthelina</option>";
+		 s+="<option>pildiurl</option>";
+		 s+="<option>juhuslikpilt</option>";
+		 s+="</select><br />"
+		 s+="<input type='text' id='tekst1' /><br />";
+		 s+="<input type='button' value='saada' onclick='saada()'/>";
+		 document.getElementById("kiht1").innerHTML=s;
+	  }
+	  function saada(){
+	      let valik=document.getElementById("seadmevalik");
+		  console.log(valik.options);
+		  for (var option of document.getElementById('seadmevalik').options) {
+            if (option.selected) {
+          //       selected.push(option.value);
+		       firebase.database().ref(kataloog+'/seadmed/'+option.value+"/seadmele").set(
+			    {"kood":document.getElementById("tyybivalik").options[document.getElementById("tyybivalik").options.selectedIndex].value, "teatesisu":document.getElementById('tekst1').value});
+            }
+          }
+	  }
+	</script>
+  </head>
+  <body>
+      Seadmed:<div id="kiht1"></div>
+  </body>
+</html>

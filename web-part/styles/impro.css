@@ -1,0 +1,13 @@
+.notReady {
+    font-size: 25px;
+    background-color: red;
+}
+
+.ready {
+    font-size: 25px;
+    background-color: rgb(3, 206, 3);
+}
+
+.audioCtr {
+    height: 70px;
+}

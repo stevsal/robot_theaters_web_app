@@ -1,0 +1,447 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Teadete saatmine</title>
+	<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-database.js"></script>
+<link rel="stylesheet" href="./styles/main.css">
+<script>
+ var firebaseConfig = {
+    apiKey: "AIzaSyBQa9n2PN8qQ1wETdWStaq6kX8z2j_FSMU",
+    authDomain: "robotid-df8e6.firebaseapp.com",
+    databaseURL: "https://robotid-df8e6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "robotid-df8e6",
+    storageBucket: "robotid-df8e6.appspot.com",
+    messagingSenderId: "551508680621",
+    appId: "1:551508680621:web:2e1999bca71ed2e1e80b24"
+  };
+
+  var kataloog='test';
+  var who = ''
+  var kokku = 9999
+  var paus = 0
+  var mangida = 0 
+  //failid masiiv 0=testseade 1=meripanna 2=allekin 3=lobe-an 4=thabolind-vakan 5=fedoni
+  var failid = [0,1,1,1,1,1]
+  var fail = ''
+  var pikkusedTest = [6000]
+  var pikkusedThab = [5000, 5000, 8000, 4000, 3000, 12000, 4000, 6000, 7000, 6000, 7000, 2000, 5000, 6000, 3000, 2000, 2000, 7000]
+  var pikkusedMeri = [8000, 5000, 7000, 3000, 8000, 19000, 2000, 10000, 5000, 2000, 7000, 4000, 7000, 20000, 4000, 3000, 5000, 4000, 5000, 4000, 8000, 5000, 5000, 1000, 2000, 2000, 2000, 2000, 3000, 3000, 10000, 2000, 2000, 1000, 3000]
+  var pikkusedAlle = [6000, 2000, 3000, 10000, 5000, 3500, 5000, 5000, 6000, 3000, 7000, 12330, 6000, 5000, 5000, 6000, 5000, 3000, 9000, 3000, 3000, 6000, 3000, 10000, 3000, 3000, 9000, 6000, 2000,]
+  var pikkusedLobe = [5000, 7000, 7000, 3000, 3000, 8000]
+  var pikkusedFedo = [4000, 7000, 4000, 7000, 5000, 6000, 6000, 7000, 4000]
+  var text1 = ''
+  var text2 = []
+  var line = ''
+  var chars = ['testseade','MERIPANNA', 'ALLEKIN', 'LOBE AN', 'THABOLIND VAKAN', 'FEDONI', 'IMPRO']
+  var speakers = ['Joanna', 'Geraint', 'Brian', 'Joey', 'Justin']
+  var prevSpeaker = ''
+  var key = 'a6ffc504c68be70294a4d68b5590cbca'
+  
+  
+  firebase.initializeApp(firebaseConfig);
+  window.onload=function(){
+     firebase.database().ref(kataloog+"/seadmed").once("value", kuva);
+  }
+
+	  function kuva(viit){
+	     let andmed=viit.val();
+		 let votmed=Object.keys(andmed);
+		 console.log(votmed);
+		 let s="<select id='seadmevalik' multiple='true'>"
+		 for(let i=0; i<votmed.length; i++){
+		   s+="<option>"+votmed[i]+"</option>\n";
+		 }
+		 s+="</select><br />";
+		 s+="<select id='tyybivalik'>";
+		 s+="<option>tekst</option>";
+		 s+="<option>teksthelina</option>";
+		 s+="<option>pildiurl</option>";
+		 s+="<option>juhuslikpilt</option>";
+     s+="<option>helifail</option>";
+		 s+="</select><br />"
+		 s+="<input type='text' id='tekst1' /><br />";
+		 s+="<input type='button' value='saada' onclick='saada()'/>";
+     s+="<input type='button' value='play' onclick='playAll()'/>"
+     s+="<input type='button' value='test' onclick='filter()'/>"
+     s+="<input type='button' value='BLINK' onclick='sendBlink()'/>"
+
+		 document.getElementById("kiht1").innerHTML=s;
+	  }
+	  function saada(){
+	      let valik=document.getElementById("seadmevalik");
+		  console.log(valik.options);
+		  for (var option of document.getElementById('seadmevalik').options) {
+            if (option.selected) {
+          //       selected.push(option.value);
+		       firebase.database().ref(kataloog+'/seadmed/'+option.value+"/seadmele").set(
+			    {"kood":document.getElementById("tyybivalik").options[document.getElementById("tyybivalik").options.selectedIndex].value, "teatesisu":document.getElementById('tekst1').value});
+            }
+          }
+	  }
+
+    function playNext() {
+      console.log('Playing one start');
+      console.log("Rida on "+ mangida);
+      findChar()
+      //setupWho()
+        if (who == 'testseade') {
+          fail = failid[0]
+          paus = pikkusedTest[fail]
+        }
+        if (who == 'MERIPANNA') {
+          prevSpeaker = 'MERIPANNA'
+          fail = failid[1]
+          paus = pikkusedMeri[fail]
+        }
+        if (who == 'ALLEKIN') {
+          prevSpeaker = 'ALLEKIN'
+          fail = failid[2]
+          paus = pikkusedAlle[fail]
+        }
+        if (who == 'LOBE AN') {
+          prevSpeaker = 'LOBE AN'
+          fail = failid[3]
+          paus = pikkusedLobe[fail]
+        }
+        if (who == 'THABOLIND VAKAN') {
+          prevSpeaker = 'THABOLIND VAKAN'
+          fail = failid[4]
+          paus = pikkusedThab[fail]
+        }
+        if (who == 'FEDONI') {
+          prevSpeaker = 'FEDONI'
+          fail = failid[5]
+          paus = pikkusedFedo[fail]
+        }
+        if (who == 'IMPRO') {
+          console.log(prevSpeaker);
+          firebase.database().ref(kataloog+'/seadmed/IMPRO/seadmele').set(
+            {'kood':'play','speaker':prevSpeaker ,'teatesisu':1,'tekst':line}
+          )
+          //setTimeout(playOne, 10000)
+          mangida++
+        } else {
+          if (who != null) {
+            console.log(kataloog+'/seadmed/'+who+'/seadmele');
+            firebase.database().ref(kataloog+'/seadmed/'+who+'/seadmele').set(
+            {'kood':'helifail', 'teatesisu':fail}
+            )
+            if (mangida < kokku ) {
+              mangida++
+              firebase.database().ref(kataloog+'/seadmed/'+who+'/seadmele').set(
+                {'kood':'tekst', 'teatesisu':fail}
+              )
+            }
+            fileHelper()
+            console.log('play next exit');
+          } else {
+            console.log('not playing');
+            mangida++
+            playNext()
+          }
+        }
+      
+
+    }
+      //aegade masiiv 
+      function playAll(){
+          console.log("playfun");
+         /*var str
+          var i
+          text2.forEach(element => {
+              str = element.toString()
+              i = str.search(":")
+              if (i >= 0) {
+                var obje = str.split(':');
+                chars.forEach(elem => {
+                  if (elem == obje[0]) {
+                    console.log(elem);
+                    playOne(elem)
+                  }
+                  
+                });
+              } 
+          });*/
+          playOne()
+      }
+      
+      function playOne() {
+        console.log('play all start');
+        console.log("Rida on "+ mangida);
+        console.log(prevSpeaker);
+        findChar()
+        //findSong()
+        if (who == 'testseade') {
+          fail = failid[0]
+          paus = pikkusedTest[fail]
+        }
+        if (who == 'MERIPANNA') {
+          prevSpeaker = 'MERIPANNA'
+          fail = failid[1]
+          paus = pikkusedMeri[fail]
+        }
+        if (who == 'ALLEKIN') {
+          prevSpeaker = 'ALLEKIN'
+          fail = failid[2]
+          paus = pikkusedAlle[fail]
+        }
+        if (who == 'LOBE AN') {
+          prevSpeaker = 'LOBE AN'
+          fail = failid[3]
+          paus = pikkusedLobe[fail]
+        }
+        if (who == 'THABOLIND VAKAN') {
+          prevSpeaker = 'THABOLIND VAKAN'
+          fail = failid[4]
+          paus = pikkusedThab[fail]
+        }
+        if (who == 'FEDONI') {
+          prevSpeaker = 'FEDONI'
+          fail = failid[5]
+          paus = pikkusedFedo[fail]
+        }
+        if (who == 'IMPRO') {
+            console.log(prevSpeaker);
+            firebase.database().ref(kataloog+'/seadmed/IMPRO/seadmele').set(
+              {'kood':'play','speaker':prevSpeaker ,'teatesisu':1,'tekst':line}
+            )
+            setTimeout(playOne, 10000)
+            mangida++
+        } else {
+            if (who != null) {
+            console.log(kataloog+'/seadmed/'+who+'/seadmele');
+            console.log(paus);
+            console.log(line);
+            firebase.database().ref(kataloog+'/seadmed/'+who+'/seadmele').set(
+            {'kood':'helifail', 'teatesisu':fail}
+            )
+            sendBlank()
+          if (mangida < kokku ) {
+            setTimeout(playOne, paus)
+            mangida++
+            firebase.database().ref(kataloog+'/seadmed/'+who+'/seadmele').set(
+              {'kood':'tekst', 'teatesisu':fail}
+            )
+          }
+          //setTimeout(playOne, paus)
+          fileHelper()
+          console.log('play one end');
+            } else {
+            mangida++
+            playOne()
+            }
+        }
+        
+
+        console.log(failid);
+        
+      }
+
+      function findChar() {
+        console.log('finding char');
+        let i
+        let str = text2[mangida].toString()
+        i = str.search(':')
+        if (i >= 0) {
+          let obje = str.split(':')
+          chars.forEach(element => {
+            if (element == obje[0]) {
+              console.log(element);
+              console.log(obje[1],'teksttt');
+              line = obje[1]
+              who = element
+              console.log('char found' + who);
+            } 
+          });
+        } else {
+          who = null
+          console.log("No char found");
+        }
+      }
+      
+      function fileHelper() {
+        if (who == 'MERIPANNA') {
+          failid[1]++
+        }
+        if (who == 'testseade') {
+          failid[0]++
+        }
+        if (who == 'ALLEKIN') {
+          failid[2]++
+        }
+        if (who == 'LOBE AN') {
+          failid[3]++
+        }
+        if (who == 'THABOLIND VAKAN') {
+          failid[4]++
+        }
+        if (who == 'FEDONI') {
+          failid[5]++
+        }
+      }
+
+      function setupWho() {
+        if (who == 'testseade') {
+          fail = failid[0]
+          paus = pikkusedTest[fail]
+        }
+        if (who == 'MERIPANNA') {
+          prevSpeaker = 'MERIPANNA'
+          fail = failid[1]
+          paus = pikkusedMeri[fail]
+        }
+        if (who == 'ALLEKIN') {
+          prevSpeaker = 'ALLEKIN'
+          fail = failid[2]
+          paus = pikkusedAlle[fail]
+        }
+        if (who == 'LOBE AN') {
+          prevSpeaker = 'LOBE AN'
+          fail = failid[3]
+          paus = pikkusedLobe[fail]
+        }
+        if (who == 'THABOLIND VAKAN') {
+          prevSpeaker = 'THABOLIND VAKAN'
+          fail = failid[4]
+          paus = pikkusedThab[fail]
+        }
+        if (who == 'FEDONI') {
+          prevSpeaker = 'FEDONI'
+          fail = failid[5]
+          paus = pikkusedFedo[fail]
+        } else {
+          console.log('No char to setup');
+        }
+      }
+
+      /*function sendBlank() {
+        for (let index = 0; index < chars.length; index++) {
+          const element = chars[index];
+          if (element != who) {
+            console.log(element);
+          }
+        }
+      }*/
+
+      function findSong() {
+        let bracket
+        let string = text2[mangida].toString()
+        bracket = string.search('[')
+        console.log("pic fun");
+        if (bracket >= 0) {
+          let song = string.split('[')
+          song = song[1].toString()
+          bracket = song.search(']')
+          song = song.split(']')
+          console.log(song[0]);
+
+        } else {
+          console.log(bracket + " ei leidnud");
+        }
+      }
+
+      function parsePlay(){
+        fetch('tekstid/lavastus.txt')
+        .then(response => response.text())
+        .then(data => {
+            // Do something with your data
+            text1 = data
+           // console.log(text1);
+            console.log(text1.length);
+            //document.getElementById('test').innerHTML = data aaaa
+        });
+        console.log("parsefunend");
+      }
+      
+      function goBack() {
+        let index
+        who = null
+        while (who == null) {
+          mangida = mangida - 1
+          if (mangida < 0) {
+            mangida = 0
+          }
+          findChar()
+        }
+        removeFileIndex()
+        console.log('uus Rida on '+ mangida);
+      }
+      function removeFileIndex() {
+        console.log('Removing index from '+ who);
+        console.log(failid);
+        if (who == 'MERIPANNA') {
+          failid[1]--
+        }
+        if (who == 'testseade') {
+          failid[0]--
+        }
+        if (who == 'ALLEKIN') {
+          failid[2]--
+        }
+        if (who == 'LOBE AN') {
+          failid[3]--
+        }
+        if (who == 'THABOLIND VAKAN') {
+          failid[4]--
+        }
+        if (who == 'FEDONI') {
+          failid[5]--
+        }
+        console.log('New file indexes ----');
+        console.log(failid);
+      }
+
+      function sendBlink() {
+        firebase.database().ref(kataloog+'/seadmed/KUVA/seadmele').set(
+            {'kood':'showImpProg', 'teatesisu':'blinking'})
+      }
+
+	</script>
+  </head>
+  <body>
+      Seadmed:<div id="kiht1"></div>
+      <input type='file' name='file' id='file'>
+      <div id="test">
+        <button id="play1but" onclick="playNext()">Play next</button>
+        <button id='prevButt' onclick="goBack()">Go back</button>
+      </div>
+  </body>
+  <script>
+    document.getElementById('file').onchange = function(){
+
+        var file = this.files[0];
+
+        var reader = new FileReader();
+        reader.onload = function(progressEvent){
+
+            // By lines
+            var lines = this.result.split('\n');
+            for(var line = 0; line < lines.length; line++){
+                //console.log(lines[line]);
+                text2.push(lines[line])
+            }
+        };
+        reader.readAsText(file);
+        console.log('DONE');
+    };
+
+    function filter() {
+        text2 = text2.filter(function (el) {
+            return el != "\r"
+        })
+        text2.forEach(element => {
+            console.log(element);
+        });
+        mangida = 0
+        console.log(text2.length);
+        kokku = 0
+        kokku = text2.length
+    }
+
+    function getChars() {
+        //TBD
+    }
+  </script>
+</html>
