@@ -1,1 +1,3 @@
-$ Hello
+Thesis project
+
+Readme under construction
